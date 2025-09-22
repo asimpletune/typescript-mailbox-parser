@@ -1,0 +1,46 @@
+mailbox         :=    named_addr | addr_spec
+named_addr := name=display_name? angle_addr=angle_addr
+addr_spec       :=    local=local_part '@' domain=domain
+display_name    :=    phrase
+angle_addr := CFWS? open='<' addr=addr_spec close='>' CFWS? | obs_angle_addr
+local_part      :=    dot_atom | quoted_string | obs_local_part
+domain          :=    dot_atom | domain_literal | obs_domain
+phrase          :=    words=word+ | obs_phrase=obs_phrase
+CFWS :=    A={ B=FWS? C=comment }+ D=FWS? | E=FWS
+obs_angle_addr := CFWS? open='<' C=obs_route addr=addr_spec close='>' CFWS?
+dot_atom := CFWS? text=dot_atom_text CFWS?
+quoted_string := CFWS? open_quote=DQUOTE chars={ space=FWS? char=qcontent }* FWS? close_quote=DQUOTE CFWS?
+obs_local_part := head=word tail={ C='\.' text=word }*
+                  .sep = string { return '.' }
+domain_literal := CFWS? open='\[' chars={ FWS? char=dtext }* FWS? close='\]' CFWS?
+obs_domain := head=atom tail={ dot='\.' text=atom }*
+word            :=    atom | quoted_string
+obs_phrase := head=word tail={ word | '.' | CFWS }*
+FWS := A={ B=WSP* C=CRLF }? D=WSP+ | E=obs_FWS
+comment := A='\(' B={ FWS? D=ccontent }* FWS? F='\)'
+obs_route := obs_domain_list B=':'
+dot_atom_text := head=atext+ tail={ dot='\.' chars=atext+ }*
+                  .sep = string { return '.' }
+DQUOTE          :=    '\x22'              // double quote, i.e. '"'
+qcontent        :=    qtext | quoted_pair
+dtext           :=    '[\x21-\x5a]' | '[\x5e-\x7e]' | obs_dtext
+atom := leading_space=CFWS? chars=atext+ trailing_space=CFWS?
+WSP             :=    SP | HTAB           // white space
+obs_FWS := A=WSP+ { CRLF WSP+ }*
+CRLF            :=    '\r\n'              // Internet standard newline
+ccontent := A=ctext | B=quoted_pair | C=comment
+obs_domain_list := A={ B=CFWS | C=',' }* D='@' E=domain F={ G=',' CFWS? I={ J='@' K=domain }? }*
+atext           :=    '[A-Za-z0-9!#$%&\x27\*\+\-\/=?^_`{|}~]'
+qtext           :=    '\x21' | '[\x23-\x5b]' | '[\x5d-\x7e]' | obs_qtext=obs_qtext
+quoted_pair := backslash='\\' char={ VCHAR | WSP } | obs_qp
+obs_dtext := obs_NO_WS_CTL | B=quoted_pair
+SP              :=    '\x20'              // space, i.e. 'Space'
+HTAB            :=    '\x09'              // horizontal tab, i.e. 'TAB'
+ctext := A='[\x21-\x27]' | B='[\x2a-\x5b]' | C='[\x5d-\x7e]' | D=obs_ctext
+obs_qtext       :=    obs_NO_WS_CTL
+obs_qp          :=    '\\' { '\x00' | obs_NO_WS_CTL | LF | CR }
+VCHAR           :=    '[\x21-\x7E]'       // visible (printing) characters
+obs_NO_WS_CTL := '[\x01-\x08]' | '\x0B' | C='\x0C' | D='[\x0E-\x1F]' | E='\x7F'
+obs_ctext       :=    obs_NO_WS_CTL
+LF              :=    '\x0A'              // linefeed, i.e. '\n'
+CR              :=    '\x0D'              // carriage return, i.e. '\r'

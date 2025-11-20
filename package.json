@@ -1,19 +1,21 @@
 {
   "name": "typescript-mailbox-parser",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Reliably get the display name, local, and domain parts of an email address",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "test": "npx tsx test/tests.ts",
+    "docs:examples": "npx tsx examples.ts",
     "fmt": "prettier --write \"**/*.{json,ts}\"",
     "build:parser": "npx tspeg mailbox-computed.peg generated/parser.ts",
-    "build:compile": "npx tsup src/index.ts --dts --clean --format esm,cjs",
+    "build:compile": "npx tsup",
     "build:all": "npx npm run build:parser && npx npm run build:compile"
   },
   "keywords": [
@@ -31,16 +33,15 @@
     "typescript",
     "ts"
   ],
-  "author": "",
+  "author": "Spencer Van Wessem Scorcelletti",
   "license": "MIT",
-  "packageManager": "pnpm@10.6.2",
   "devDependencies": {
     "@esbuild/darwin-arm64": "^0.25.10",
+    "@types/node": "^24.10.1",
     "prettier": "^3.6.2",
     "tspeg": "^3.3.2",
     "tsup": "^8.5.0",
     "tsx": "^4.20.5",
-    "typescript": "^5.9.2",
-    "typescript-mailbox-parser": "file:typescript-mailbox-parser-0.0.1.tgz"
+    "typescript": "^5.9.2"
   }
 }

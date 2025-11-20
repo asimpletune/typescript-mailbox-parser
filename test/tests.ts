@@ -1,4 +1,4 @@
-import { mailbox } from 'typescript-mailbox-parser'
+import mailbox from '../dist'
 
 /**
   These tests should cover most of what's important. However, they don't cover the 'obsolete' parts of the spec. One day more testing should be done to target that directly. It's not a big concern though because the obsolete part of the spec only applies to emails from the punchcard days.
@@ -29,19 +29,19 @@ function deepEqual(a: any, b: any): boolean {
   return true
 }
 
-type Pass = Exclude<ReturnType<typeof mailbox>, string[]>
+type Pass = Exclude<ReturnType<typeof mailbox>, { errors: string[] }>
 type Fail = Exclude<ReturnType<typeof mailbox>, Pass>
 
-function test_pos({
+function test({
   actual,
   expect,
   label,
 }: {
-  actual: Fail | Pass
-  expect: Pass
+  actual: Pass | Fail
+  expect: Pass | Fail
   label: string
 }) {
-  if (Array.isArray(actual)) {
+  if (actual.ok !== expect.ok) {
     throw new Error(
       `Test failed, errors: \n\n${JSON.stringify(actual, null, 2)}`,
     )
@@ -58,21 +58,32 @@ function test_pos({
   if (label) console.log(`'${label}' passed`)
 }
 
-test_pos({
+test({
   actual: mailbox('bob@example.com'),
-  expect: { addr: 'bob@example.com', local: 'bob', domain: 'example.com' },
+  expect: {
+    ok: true,
+    addr: 'bob@example.com',
+    local: 'bob',
+    domain: 'example.com',
+  },
   label: 'bob@example.com',
 })
 
-test_pos({
+test({
   actual: mailbox('<bob@example.com>'),
-  expect: { addr: 'bob@example.com', local: 'bob', domain: 'example.com' },
+  expect: {
+    ok: true,
+    addr: 'bob@example.com',
+    local: 'bob',
+    domain: 'example.com',
+  },
   label: '<bob@example.com>',
 })
 
-test_pos({
+test({
   actual: mailbox('Bob Hope <bob@example.com>'),
   expect: {
+    ok: true,
     addr: 'bob@example.com',
     local: 'bob',
     domain: 'example.com',
@@ -81,9 +92,10 @@ test_pos({
   label: 'Bob Hope <bob@example.com>',
 })
 
-test_pos({
+test({
   actual: mailbox('"Bob Hope" <bob@example.com>'),
   expect: {
+    ok: true,
     addr: 'bob@example.com',
     local: 'bob',
     domain: 'example.com',
@@ -92,9 +104,10 @@ test_pos({
   label: '"Bob Hope" <bob@example.com>',
 })
 
-test_pos({
+test({
   actual: mailbox('Bruce "The Boss" Springsteen <bruce@example.com>'),
   expect: {
+    ok: true,
     addr: 'bruce@example.com',
     local: 'bruce',
     domain: 'example.com',
@@ -103,26 +116,67 @@ test_pos({
   label: 'Bruce "The Boss" Springsteen <bruce@example.com>',
 })
 
-test_pos({
+console.log(mailbox('Bruce "The Boss" Springsteen <bruce@example.com>'))
+
+test({
   actual: mailbox('bob@example'),
-  expect: { addr: 'bob@example', local: 'bob', domain: 'example' },
+  expect: { ok: true, addr: 'bob@example', local: 'bob', domain: 'example' },
   label: 'bob@example',
 })
 
-test_pos({
+test({
   actual: mailbox('BOB@example'),
-  expect: { addr: 'BOB@example', local: 'BOB', domain: 'example' },
+  expect: { ok: true, addr: 'BOB@example', local: 'BOB', domain: 'example' },
   label: 'BOB@example',
 })
 
-test_pos({
+test({
   actual: mailbox('bob@EXAMPLE'),
-  expect: { addr: 'bob@EXAMPLE', local: 'bob', domain: 'EXAMPLE' },
+  expect: { ok: true, addr: 'bob@EXAMPLE', local: 'bob', domain: 'EXAMPLE' },
   label: 'bob@EXAMPLE',
 })
 
-test_pos({
+test({
   actual: mailbox('a.b.c@d.e.f.g'),
-  expect: { addr: 'a.b.c@d.e.f.g', local: 'a.b.c', domain: 'd.e.f.g' },
+  expect: {
+    ok: true,
+    addr: 'a.b.c@d.e.f.g',
+    local: 'a.b.c',
+    domain: 'd.e.f.g',
+  },
   label: 'a.b.c@d.e.f.g',
 })
+
+test({
+  actual: mailbox('"site.local.test:1111"@example.com'),
+  expect: {
+    ok: true,
+    addr: '"site.local.test:1111"@example.com',
+    local: '"site.local.test:1111"',
+    domain: 'example.com',
+  },
+  label: 'quoted with illegal characters',
+})
+
+test({
+  actual: mailbox('"hello, world"@example.com'),
+  expect: {
+    ok: true,
+    addr: '"hello, world"@example.com',
+    local: '"hello, world"',
+    domain: 'example.com',
+  },
+  label: 'quoted with illegal characters 2',
+})
+
+test({
+  actual: mailbox('foo bar baz'),
+  expect: {
+    ok: false,
+    errors: [
+      '{"pos":{"overallPos":11,"line":1,"offset":11},"expmatches":[{"kind":"RegexMatch","literal":"[A-Za-z0-9!#$%&\\\\x27\\\\*\\\\+\\\\-\\\\/=?^_\\\\`{|}~]","negated":false},{"kind":"RegexMatch","literal":"\\\\x20","negated":false},{"kind":"RegexMatch","literal":"\\\\x09","negated":false},{"kind":"RegexMatch","literal":"\\\\r\\\\n","negated":false},{"kind":"RegexMatch","literal":"\\\\(","negated":false},{"kind":"RegexMatch","literal":"\\\\x22","negated":false},{"kind":"RegexMatch","literal":"<","negated":false}]}',
+    ],
+  },
+  label: 'Invalid mailbox should fail to parse',
+})
+console.log(mailbox('foo bar baz'))

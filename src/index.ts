@@ -24,14 +24,18 @@ import {
   word,
 } from '../generated/parser'
 
-export function mailbox(
-  mb: string,
-): string[] | { addr: string; name?: string; local: string; domain: string } {
+export type MailboxParseResult =
+  | { ok: false; errors: string[] }
+  | { ok: true; addr: string; name?: string; local: string; domain: string }
+
+export default function mailbox(mb: string): MailboxParseResult {
   const mailbox = parse(mb)
-  if (mailbox.errs.length > 0) return mailbox.errs.map((e) => JSON.stringify(e))
+  if (mailbox.errs.length > 0)
+    return { ok: false, errors: mailbox.errs.map((e) => JSON.stringify(e)) }
   else {
     const parts = mailbox_2_parts(mailbox.ast!)
     return {
+      ok: true,
       ...parts,
       addr: `${parts.local}@${parts.domain}`,
     }
@@ -91,7 +95,7 @@ function local_part_2_str(input: local_part): string {
   if (input.kind == ASTKinds.dot_atom) {
     return dot_atom_2_str(input)
   } else if (input.kind == ASTKinds.quoted_string) {
-    return input.chars.join('')
+    return quoted_string_2_str(input, true)
   } else if (input.kind == ASTKinds.obs_local_part) {
     return obs_local_part_2_str(input)
   } else {

@@ -11,12 +11,12 @@ Also:
 
 ⚠️ THIS LIBRARY IS NOT ABANDONED ⚠️
 
-At some point in the future it may seem like this project is abandoned, but it's not. While there _may_ be few commits or not much activity, the code from this project is almost entirely derived from the email [rfc](https://www.rfc-editor.org/rfc/rfc5322#section-3.4) spec, and it therefore benefits from all the very mature work that has gone into those efforts.
+While there _may_ be few commits or little activity, the code from this project is almost entirely derived from the email [rfc](https://www.rfc-editor.org/rfc/rfc5322#section-3.4) spec, and it therefore benefits from all the very mature work that has gone into those efforts.
 
 Examples:
 
 ```ts
-import mailbox from 'typescript-mailbox-parser'
+import { mailbox } from 'typescript-mailbox-parser'
 
 // {
 //   "ok": true,
@@ -117,7 +117,7 @@ To install `npm install typescript-mailbox-parser`
 Then to use it you just need to import it and call the `mailbox` function on a string.
 
 ```ts
-import mailbox from 'typescript-mailbox-parser'
+import { mailbox } from 'typescript-mailbox-parser'
 
 const email = mailbox('hello@example.com')
 ```
@@ -133,7 +133,7 @@ type MailboxParseResult =
 In other words, if successful it will return an object representing the parts of the email address (mailbox):
 
 ```ts
-import mailbox from 'typescript-mailbox-parser'
+import { mailbox } from 'typescript-mailbox-parser'
 
 // {
 //   ok: true,
@@ -148,7 +148,7 @@ console.log(mailbox('Bruce "The Boss" Springsteen <bruce@example.com>'))
 If unsuccessful it will return an object with an `errors` field containing an array of error messages as strings:
 
 ```ts
-import mailbox from 'typescript-mailbox-parser'
+import { mailbox } from 'typescript-mailbox-parser'
 
 // {
 //   ok: false,

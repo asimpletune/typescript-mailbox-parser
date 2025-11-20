@@ -1,6 +1,6 @@
 {
   "name": "typescript-mailbox-parser",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Reliably get the display name, local, and domain parts of an email address",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

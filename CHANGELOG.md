@@ -2,6 +2,10 @@
 
 ## Next
 
+## 0.0.3 (2025-11-20)
+
+- Revert back to exporting `mailbox` as a named export
+
 ## 0.0.2 (2025-11-20)
 
 - Improve support for quoted strings in the local portion of an email

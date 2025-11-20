@@ -28,7 +28,7 @@ export type MailboxParseResult =
   | { ok: false; errors: string[] }
   | { ok: true; addr: string; name?: string; local: string; domain: string }
 
-export default function mailbox(mb: string): MailboxParseResult {
+export function mailbox(mb: string): MailboxParseResult {
   const mailbox = parse(mb)
   if (mailbox.errs.length > 0)
     return { ok: false, errors: mailbox.errs.map((e) => JSON.stringify(e)) }

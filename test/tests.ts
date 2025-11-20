@@ -1,4 +1,4 @@
-import mailbox from '../dist'
+import { mailbox } from '../dist'
 
 /**
   These tests should cover most of what's important. However, they don't cover the 'obsolete' parts of the spec. One day more testing should be done to target that directly. It's not a big concern though because the obsolete part of the spec only applies to emails from the punchcard days.
@@ -116,8 +116,6 @@ test({
   label: 'Bruce "The Boss" Springsteen <bruce@example.com>',
 })
 
-console.log(mailbox('Bruce "The Boss" Springsteen <bruce@example.com>'))
-
 test({
   actual: mailbox('bob@example'),
   expect: { ok: true, addr: 'bob@example', local: 'bob', domain: 'example' },
@@ -179,4 +177,3 @@ test({
   },
   label: 'Invalid mailbox should fail to parse',
 })
-console.log(mailbox('foo bar baz'))

@@ -1,4 +1,4 @@
-import mailbox from './dist'
+import { mailbox } from './dist'
 import vm from 'node:vm'
 
 const sandbox = { mailbox, console }
